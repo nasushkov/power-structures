@@ -1,0 +1,29 @@
+{
+    "tags": {
+        "allowUnknownTags": true
+    },
+    "source": {
+        "include": ["./"],
+            "includePattern": ".+\\.js(doc)?$",
+            "excludePattern": "docs"
+    },
+    "plugins": [],
+    "templates": {
+        "cleverLinks": false,
+        "monospaceLinks": true,
+        "systemName": "powerStructures",
+        "footer": "Created by Nikita Sushkov",
+        "copyright": "2015",
+        "navType": "vertical",
+        "theme": "spacelab",
+        "linenums": true,
+        "collapseSymbols": true,
+        "inverseNav": false
+    },
+    "opts": {
+        "encoding": "utf8",
+        "destination": "docs/js",
+        "recurse": true,
+        "private": true
+    }
+}
