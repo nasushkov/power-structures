@@ -1,6 +1,3 @@
-/**
- * Created by Nikita on 29.10.2015.
- */
 jest.dontMock('../../src/queue/PriorityQueue');
 let priorityQueue = require('../../src/queue/PriorityQueue');
 

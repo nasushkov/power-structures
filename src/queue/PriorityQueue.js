@@ -19,11 +19,15 @@ class BasePriorityQueue {
      * Create a queue
      * @param iterable - Iterable which contains initial elements
      */
-    constructor(iterable){
-        this[pq] = new Array(null);
-        if(iterable){
-            for(let item of iterable){
-                this.insert(item);
+    constructor(iterable) {
+        this[pq] = [null];
+        if (iterable) {
+            if (iterable[Symbol.iterator]) {
+                for (let item of iterable) {
+                    this.insert(item);
+                }
+            } else {
+                throw new TypeError('Priority  queue constructor argument should be iterable');
             }
         }
     }
@@ -36,7 +40,7 @@ class BasePriorityQueue {
      * @param n
      * @returns {boolean}
      */
-    [comp](m, n){
+    [comp](m, n) {
         throw new Error('must be implemented by subclass!');
     }
 
@@ -47,9 +51,9 @@ class BasePriorityQueue {
      * @param n
      * @returns {boolean}
      */
-    [exch](m, n){
+    [exch](m, n) {
         let N = this[pq].length - 1;
-        if((m < 1) || (m > N) || (n < 1) || (n > N)){
+        if ((m < 1) || (m > N) || (n < 1) || (n > N)) {
             return false;
         }
         let mItem = this[pq][m];
@@ -62,9 +66,9 @@ class BasePriorityQueue {
      * @protected
      * @param k
      */
-    [swim](k){
-        while((k > 1) && this[comp](k/2, k)){
-            this[exch](k, k/2);
+    [swim](k) {
+        while ((k > 1) && this[comp](k / 2, k)) {
+            this[exch](k, k / 2);
             k /= 2;
         }
     }
@@ -74,14 +78,14 @@ class BasePriorityQueue {
      * @protected
      * @param k
      */
-    [sink](k){
+    [sink](k) {
         let N = this[pq].length - 1;
-        while((2 * k) <= N){
+        while ((2 * k) <= N) {
             let j = 2 * k;
-            if(j < N && this[comp](j, j + 1)){
+            if (j < N && this[comp](j, j + 1)) {
                 j++;
             }
-            if(!this[comp](k, j)){
+            if (!this[comp](k, j)) {
                 break;
             }
             this[exch](k, j);
@@ -94,7 +98,7 @@ class BasePriorityQueue {
      * @protected
      * @returns {*}
      */
-    [delTop](){
+    [delTop]() {
         let top = this[pq][1];
         this[exch](1, this[pq].length - 1);
         this[pq].pop();
@@ -107,7 +111,7 @@ class BasePriorityQueue {
      * @public
      * @returns {boolean}
      */
-    get empty(){
+    get empty() {
         return this[pq].length === 1;
     }
 
@@ -116,7 +120,7 @@ class BasePriorityQueue {
      * @public
      * @returns {number}
      */
-    get size(){
+    get size() {
         return this[pq].length - 1;
     }
 
@@ -125,30 +129,32 @@ class BasePriorityQueue {
      * @public
      * @param x
      */
-    insert(x){
+    insert(x) {
         this[pq].push(x);
         this[swim](this[pq].length - 1);
     }
-}
+};
 
 /**
  * Iterator for MaxPriorityQueue
  */
-class MaxPriorityQueueIterator{
-    constructor(maxPriorityQueue){
+class MaxPriorityQueueIterator {
+    constructor(maxPriorityQueue) {
         this[qCopy] = new MaxPriorityQueue();
         this[qCopy][pq] = Array.from(maxPriorityQueue[pq]);
     }
-    next(){
-        if(this[qCopy].empty){
-            return { done: true };
+
+    next() {
+        if (this[qCopy].empty) {
+            return {done: true};
         }
-        return { value: this[qCopy].delMax() };
+        return {value: this[qCopy].delMax()};
     }
+
     [Symbol.iterator]() {
         return this;
     }
-}
+};
 
 /**
  * Class representing priority queue with max element on the top
@@ -159,7 +165,7 @@ export class MaxPriorityQueue extends BasePriorityQueue {
      * Create a MaxPriorityQueue
      * @param iterable
      */
-    constructor(iterable){
+    constructor(iterable) {
         super(iterable);
     }
 
@@ -170,19 +176,19 @@ export class MaxPriorityQueue extends BasePriorityQueue {
      * @param n
      * @returns {boolean}
      */
-    [less](m, n){
-        if((m < 1) || (m > this[pq].length - 1) || (n < 1) || (n > this[pq].length - 1)){
+    [less](m, n) {
+        if ((m < 1) || (m > this[pq].length - 1) || (n < 1) || (n > this[pq].length - 1)) {
             return false;
         }
         let mItem = this[pq][m];
         let nItem = this[pq][n];
-        if(mItem == nItem){
+        if (mItem == nItem) {
             return false;
         }
-        if(!mItem){
+        if (!mItem) {
             return false;
         }
-        if(!nItem){
+        if (!nItem) {
             return true;
         }
         return mItem < nItem;
@@ -195,7 +201,7 @@ export class MaxPriorityQueue extends BasePriorityQueue {
      * @param n
      * @returns {*}
      */
-    [comp](m, n){
+    [comp](m, n) {
         return this[less](m, n);
     }
 
@@ -211,8 +217,8 @@ export class MaxPriorityQueue extends BasePriorityQueue {
      * @public
      * @returns {*}
      */
-    max(){
-        if(this.empty){
+    max() {
+        if (this.empty) {
             throw new Error('Priority queue underflow');
         }
         return this[pq][1];
@@ -223,7 +229,7 @@ export class MaxPriorityQueue extends BasePriorityQueue {
      * @public
      * @returns {*}
      */
-    delMax(){
+    delMax() {
         return this[delTop]();
     }
 };
@@ -231,17 +237,19 @@ export class MaxPriorityQueue extends BasePriorityQueue {
 /**
  * Iterator for MinPriorityQueue
  */
-class MinPriorityQueueIterator{
-    constructor(minPriorityQueue){
+class MinPriorityQueueIterator {
+    constructor(minPriorityQueue) {
         this[qCopy] = new MinPriorityQueue();
         this[qCopy][pq] = Array.from(minPriorityQueue[pq]);
     }
-    next(){
-        if(this[qCopy].empty){
-            return { done: true };
+
+    next() {
+        if (this[qCopy].empty) {
+            return {done: true};
         }
-        return { value: this[qCopy].delMin() };
+        return {value: this[qCopy].delMin()};
     }
+
     [Symbol.iterator]() {
         return this;
     }
@@ -256,7 +264,7 @@ export class MinPriorityQueue extends BasePriorityQueue {
      * Create a MinPriorityQueue
      * @param iterable
      */
-    constructor(iterable){
+    constructor(iterable) {
         super(iterable);
     }
 
@@ -267,19 +275,19 @@ export class MinPriorityQueue extends BasePriorityQueue {
      * @param n
      * @returns {boolean}
      */
-    [greater](m, n){
-        if((m < 1) || (m > this[pq].length - 1) || (n < 1) || (n > this[pq].length - 1)){
+    [greater](m, n) {
+        if ((m < 1) || (m > this[pq].length - 1) || (n < 1) || (n > this[pq].length - 1)) {
             return false;
         }
         let mItem = this[pq][m];
         let nItem = this[pq][n];
-        if(mItem == nItem){
+        if (mItem == nItem) {
             return false;
         }
-        if(!mItem){
+        if (!mItem) {
             return false;
         }
-        if(!nItem){
+        if (!nItem) {
             return true;
         }
         return mItem > nItem;
@@ -292,9 +300,10 @@ export class MinPriorityQueue extends BasePriorityQueue {
      * @param n
      * @returns {*}
      */
-    [comp](m, n){
+    [comp](m, n) {
         return this[greater](m, n);
     }
+
     [Symbol.iterator]() {
         return new MinPriorityQueueIterator(this);
     }
@@ -304,8 +313,8 @@ export class MinPriorityQueue extends BasePriorityQueue {
      * @public
      * @returns {*}
      */
-    min(){
-        if(this.empty){
+    min() {
+        if (this.empty) {
             throw new Error('Priority queue underflow');
         }
         return this[pq][1];
@@ -315,7 +324,7 @@ export class MinPriorityQueue extends BasePriorityQueue {
      * Delete the min element
      * @returns {*}
      */
-    delMin(){
+    delMin() {
         return this[delTop]();
     }
 };
