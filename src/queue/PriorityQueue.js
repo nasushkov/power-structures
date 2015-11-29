@@ -4,6 +4,7 @@
  */
 let qCopy = Symbol();
 let pq = Symbol();
+let sz = Symbol();
 let num = Symbol();
 let swim = Symbol();
 let sink = Symbol();
@@ -12,6 +13,7 @@ let greater = Symbol();
 let exch = Symbol();
 let comp = Symbol();
 let delTop = Symbol();
+let resize = Symbol();
 
 /** Class with general operations for priority queue (use as a base class for concrete implementations)*/
 class BasePriorityQueue {
@@ -21,6 +23,7 @@ class BasePriorityQueue {
      */
     constructor(iterable) {
         this[pq] = [null];
+        this[sz] = 0;
         if (iterable) {
             if (iterable[Symbol.iterator]) {
                 for (let item of iterable) {
@@ -31,6 +34,19 @@ class BasePriorityQueue {
             }
         }
     }
+
+    /**
+     * Resize inner array
+     * @param capacity
+     */
+    [resize](capacity) {
+        let copy = new Array(capacity);
+        for (let i = 0; i < this[sz] + 1; i++) {
+            copy[i] = this[pq][i];
+        }
+        this[pq] = copy;
+    }
+
 
     /**
      * Compare two values (must be implemented in concrete priority queue)
@@ -52,8 +68,7 @@ class BasePriorityQueue {
      * @returns {boolean}
      */
     [exch](m, n) {
-        let N = this[pq].length - 1;
-        if ((m < 1) || (m > N) || (n < 1) || (n > N)) {
+        if ((m < 1) || (m > this[sz]) || (n < 1) || (n > this[sz])) {
             return false;
         }
         let mItem = this[pq][m];
@@ -79,7 +94,7 @@ class BasePriorityQueue {
      * @param k
      */
     [sink](k) {
-        let N = this[pq].length - 1;
+        let N = this[sz];
         while ((2 * k) <= N) {
             let j = 2 * k;
             if (j < N && this[comp](j, j + 1)) {
@@ -100,8 +115,11 @@ class BasePriorityQueue {
      */
     [delTop]() {
         let top = this[pq][1];
-        this[exch](1, this[pq].length - 1);
-        this[pq].pop();
+        this[exch](1, this[sz]);
+        this[sz]--;
+        if (this[sz] < this[pq].length / 4) {
+            this[resize](this[pq].length / 2)
+        }
         this[sink](1);
         return top;
     }
@@ -112,7 +130,7 @@ class BasePriorityQueue {
      * @returns {boolean}
      */
     get empty() {
-        return this[pq].length === 1;
+        return this[sz] === 0;
     }
 
     /**
@@ -121,7 +139,7 @@ class BasePriorityQueue {
      * @returns {number}
      */
     get size() {
-        return this[pq].length - 1;
+        return this[sz];
     }
 
     /**
@@ -130,8 +148,11 @@ class BasePriorityQueue {
      * @param x
      */
     insert(x) {
-        this[pq].push(x);
-        this[swim](this[pq].length - 1);
+        if (this[sz] === this[pq].length - 1) {
+            this[resize](2 * this[pq].length);
+        }
+        this[pq][++this[sz]] = x;
+        this[swim](this[sz]);
     }
 };
 
@@ -177,7 +198,7 @@ export class MaxPriorityQueue extends BasePriorityQueue {
      * @returns {boolean}
      */
     [less](m, n) {
-        if ((m < 1) || (m > this[pq].length - 1) || (n < 1) || (n > this[pq].length - 1)) {
+        if ((m < 1) || (m > this[sz]) || (n < 1) || (n > this[sz])) {
             return false;
         }
         let mItem = this[pq][m];
@@ -276,7 +297,7 @@ export class MinPriorityQueue extends BasePriorityQueue {
      * @returns {boolean}
      */
     [greater](m, n) {
-        if ((m < 1) || (m > this[pq].length - 1) || (n < 1) || (n > this[pq].length - 1)) {
+        if ((m < 1) || (m > this[sz]) || (n < 1) || (n > this[sz])) {
             return false;
         }
         let mItem = this[pq][m];

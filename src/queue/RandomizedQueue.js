@@ -119,7 +119,7 @@ export default class RandomizedQueue {
         if (this.empty) {
             throw new Error('Can\'t deque: queue is empty');
         }
-        let rand = this[getRand](this[rq].length);
+        let rand = this[getRand](this[sz]);
         let result = this[rq][rand];
         this[sz]--;
         if (rand === this[sz]) {
@@ -134,6 +134,11 @@ export default class RandomizedQueue {
         }
         return result;
     }
+
+    /**
+     * Get sample element from queue
+     * @returns {*}
+     */
     sample(){
         if (this.empty) {
             throw new Error('Can\'t return sample: queue is empty');
